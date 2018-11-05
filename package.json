@@ -1,0 +1,68 @@
+{
+  "name": "integreat-queue-bull",
+  "version": "0.1.0",
+  "description": "Bull queue for Integreat",
+  "keywords": [
+    "redis",
+    "bull",
+    "queue",
+    "integreat"
+  ],
+  "author": "Kjell-Morten Bratsberg Thorsen <post@kjellmorten.no>",
+  "license": "ISC",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "test": "tsc && nyc --reporter=text-summary ava dist/**/*-test.js",
+    "test:watch": "npm run dev",
+    "dev": "ava --watch",
+    "build": "tsc",
+    "prepare": "npm run build",
+    "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "nyc:report": "nyc report",
+    "lint": "tslint --project tsconfig.json --config tslint.json"
+  },
+  "ava": {
+    "compileEnhancements": false,
+    "extensions": [
+      "ts"
+    ],
+    "require": [
+      "ts-node/register/transpile-only"
+    ],
+    "files": [
+      "src/**/*-test.ts"
+    ],
+    "sources": [
+      "src/**/!(*-test).ts"
+    ]
+  },
+  "nyc": {
+    "exclude": [
+      "**/*-test.js",
+      "**/*-test.ts"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/integreat-io/integreat-queue-bull.git"
+  },
+  "bugs": {
+    "url": "https://github.com/integreat-io/integreat-queue-bull/issues"
+  },
+  "homepage": "https://github.com/integreat-io/integreat-queue-bull#readme",
+  "dependencies": {
+    "bull": "^3.4.8"
+  },
+  "devDependencies": {
+    "@types/bull": "^3.4.0",
+    "ava": "1.0.0-rc.1",
+    "babel-preset-env": "^1.7.0",
+    "coveralls": "^3.0.2",
+    "nyc": "^13.1.0",
+    "ts-node": "^7.0.1",
+    "tslint": "^5.11.0",
+    "tslint-config-standard": "^8.0.1",
+    "typescript": "^3.1.4"
+  }
+}

@@ -13,7 +13,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "test": "tsc && nyc --reporter=text-summary ava dist/**/*-test.js",
+    "test": "tsc && nyc --reporter=text-summary ava dist/**/*.test.js",
     "test:watch": "npm run dev",
     "dev": "ava --watch",
     "build": "tsc",
@@ -31,16 +31,16 @@
       "ts-node/register/transpile-only"
     ],
     "files": [
-      "src/**/*-test.ts"
+      "src/**/*.test.ts"
     ],
     "sources": [
-      "src/**/!(*-test).ts"
+      "src/**/!(*.test).ts"
     ]
   },
   "nyc": {
     "exclude": [
-      "**/*-test.js",
-      "**/*-test.ts"
+      "**/*.test.js",
+      "**/*.test.ts"
     ]
   },
   "repository": {

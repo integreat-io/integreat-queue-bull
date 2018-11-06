@@ -1,4 +1,8 @@
-# Bull queue for Integreat
+# Redis queue for Integreat - based on Bull
+
+This implementation is based on [Bull](https://github.com/OptimalBits/bull).
+
+For a Bee-Queue imlementation, see [integreat-queue-redis](https://github.com/integreat-io/integreat-queue-redis).
 
 [![npm Version](https://img.shields.io/npm/v/integreat-queue-bull.svg)](https://www.npmjs.com/package/integreat-queue-bull)
 [![Build Status](https://travis-ci.org/integreat-io/integreat-queue-bull.svg?branch=master)](https://travis-ci.org/integreat-io/integreat-queue-bull)

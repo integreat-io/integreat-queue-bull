@@ -68,15 +68,17 @@ function queue (options: Options) {
      * Active jobs are not flushed.
      */
     async flush () {
-      queue.clean(0, 'wait' as any) // This status is not correct in the @types/bull
-      queue.clean(0, 'delayed' as any)
+      return Promise.all([
+        queue.clean(0, 'wait' as any), // This status is not correct in the @types/bull
+        queue.clean(0, 'delayed')
+      ])
     },
 
     /**
      * Flush all scheduled jobs.
      */
     async flushScheduled () {
-      queue.clean(0, 'delayed' as any)
+      return queue.clean(0, 'delayed' as any)
     }
   }
 }

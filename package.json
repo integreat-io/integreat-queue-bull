@@ -52,10 +52,10 @@
   },
   "homepage": "https://github.com/integreat-io/integreat-queue-bull#readme",
   "dependencies": {
+    "@types/bull": "^3.4.0",
     "bull": "^3.4.8"
   },
   "devDependencies": {
-    "@types/bull": "^3.4.0",
     "@types/sinon": "^5.0.5",
     "ava": "1.0.0-rc.1",
     "babel-preset-env": "^1.7.0",

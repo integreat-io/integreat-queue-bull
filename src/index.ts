@@ -1,18 +1,21 @@
-import * as Queue from 'bull'
+import Queue = require('bull')
 
 interface Options {
   queue?: Queue.Queue,
   namespace?: string,
-  maxConcurrency?: number
+  maxConcurrency?: number,
+  redis?: string
 }
 
 interface Handler {
-  (data: Queue.Job): Promise<void>
+  (data: any): Promise<void>
 }
 
 function queue (options: Options) {
-  const { namespace = 'great', maxConcurrency = 1 } = options
-  const queue = (options.queue) ? options.queue : new Queue(namespace)
+  const { namespace = 'great', maxConcurrency = 1, redis } = options
+  const queue = (options.queue)
+    ? options.queue :
+    ((redis) ? new Queue(namespace, redis) : new Queue(namespace))
   let subscribed = false
 
   return {
@@ -51,7 +54,12 @@ function queue (options: Options) {
      */
     subscribe (handler: Handler) {
       subscribed = true
-      queue.process(maxConcurrency, async (job) => (subscribed) ? handler(job) : null)
+
+      queue.process(maxConcurrency,
+        async (job) => (subscribed)
+          ? handler({ id: job.id, ...job.data })
+          : null)
+
       return null
     },
 

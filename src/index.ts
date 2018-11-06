@@ -2,12 +2,18 @@ import * as Queue from 'bull'
 
 interface Options {
   queue?: Queue.Queue,
-  namespace?: string
+  namespace?: string,
+  maxConcurrency?: number
+}
+
+interface Handler {
+  (data: Queue.Job): Promise<void>
 }
 
 function queue (options: Options) {
-  const { namespace = 'great' } = options
+  const { namespace = 'great', maxConcurrency = 1 } = options
   const queue = (options.queue) ? options.queue : new Queue(namespace)
+  let subscribed = false
 
   return {
     queue,
@@ -36,6 +42,25 @@ function queue (options: Options) {
       } catch (error) {
         return null
       }
+    },
+
+    /**
+     * Subscribe to queue. Whenever a scheduled time is reached,
+     * subscribed handlers are called with the respective action.
+     * Return a subscription handle, used for unsubscribing.
+     */
+    subscribe (handler: Handler) {
+      subscribed = true
+      queue.process(maxConcurrency, async (job) => (subscribed) ? handler(job) : null)
+      return null
+    },
+
+    /**
+     * Unsubscribe from scheduler queue. Subscription is identified with the
+     * handler from the `subscribe` method.
+     */
+    unsubscribe (_handle: any) {
+      subscribed = false
     }
   }
 }

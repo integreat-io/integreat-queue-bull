@@ -15,7 +15,7 @@ test.afterEach.always(async (t) => {
 
 test('should flush scheduled', async (t) => {
   const job = {}
-  const q = (t.context as any).q = queue({ namespace: 'flush1' })
+  const q = (t.context as any).q = queue({ namespace: 'flushScheduled1' })
   await q.push(job, Date.now() + 60000)
 
   await q.flushScheduled()
@@ -26,7 +26,7 @@ test('should flush scheduled', async (t) => {
 
 test('should not flush waiting', async (t) => {
   const job = {}
-  const q = (t.context as any).q = queue({ namespace: 'flush2' })
+  const q = (t.context as any).q = queue({ namespace: 'flushScheduled2' })
   await q.push(job)
 
   await q.flushScheduled()

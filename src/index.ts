@@ -1,21 +1,51 @@
 import Queue = require('bull')
 
+interface RedisOptions {
+  port?: number,
+  host?: string,
+  family?: number,
+  path?: string,
+  keepAlive?: number,
+  connectionName?: string,
+  password?: string,
+  db?: number,
+  enableReadyCheck?: boolean,
+  keyPrefix?: string,
+  retryStrategy? (times: number): number | false,
+  maxRetriesPerRequest?: number | null,
+  reconnectOnError? (error: Error): boolean | 1 | 2,
+  enableOfflineQueue?: boolean,
+  connectTimeout?: number,
+  autoResubscribe?: boolean,
+  autoResendUnfulfilledCommands?: boolean,
+  lazyConnect?: boolean,
+  tls?: object,
+  sentinels?: Array<{ host: string; port: number; }>,
+  name?: string,
+  readOnly?: boolean,
+  dropBufferSupport?: boolean,
+  showFriendlyErrorStack?: boolean
+}
+
 interface Options {
   queue?: Queue.Queue,
   namespace?: string,
   maxConcurrency?: number,
-  redis?: string
+  redis?: string | RedisOptions
 }
 
 interface Handler {
   (data: any): Promise<void>
 }
 
+const createQueue = (namespace: string, redis?: string | RedisOptions) =>
+  (typeof redis === 'string') ? new Queue(namespace, redis)
+  : (typeof redis === 'object' && redis) ? new Queue(namespace, { redis })
+  : new Queue(namespace)
+
 function queue (options: Options) {
   const { namespace = 'great', maxConcurrency = 1, redis } = options
-  const queue = (options.queue)
-    ? options.queue :
-    ((redis) ? new Queue(namespace, redis) : new Queue(namespace))
+  const queue = (options.queue) ? options.queue : createQueue(namespace, redis)
   let subscribed = false
 
   return {
@@ -56,7 +86,7 @@ function queue (options: Options) {
       subscribed = true
 
       queue.process(maxConcurrency,
-        async (job) => (subscribed)
+        async (job: Queue.Job) => (subscribed)
           ? handler({ id: job.id, ...job.data })
           : null)
 
@@ -77,7 +107,7 @@ function queue (options: Options) {
      */
     async flush () {
       return Promise.all([
-        queue.clean(0, 'wait' as any), // This status is not correct in the @types/bull
+        queue.clean(0, 'wait'),
         queue.clean(0, 'delayed')
       ])
     },
@@ -86,7 +116,7 @@ function queue (options: Options) {
      * Flush all scheduled jobs.
      */
     async flushScheduled () {
-      return queue.clean(0, 'delayed' as any)
+      return queue.clean(0, 'delayed')
     }
   }
 }

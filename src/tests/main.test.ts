@@ -4,12 +4,12 @@ import queue = require('..')
 
 // Tests
 
-test('should return bee instance with namespace', (t) => {
-  const bee: any = {}
+test('should return bull instance with namespace', (t) => {
+  const bull: any = {}
 
-  const q = queue({ queue: bee })
+  const q = queue({ queue: bull })
 
-  t.is(q.queue, bee)
+  t.is(q.queue, bull)
   t.is(q.namespace, 'great')
 })
 
@@ -31,6 +31,14 @@ test('should create queue', (t) => {
 
 test('should create queue with redis url', (t) => {
   const options = { namespace: 'greater', redis: 'redis://localhost:6378' }
+
+  const q = queue(options)
+
+  t.truthy(q.queue)
+})
+
+test('should create queue with redis options', (t) => {
+  const options = { namespace: 'greater', redis: { host: 'localhost', port: 6378 } }
 
   const q = queue(options)
 

@@ -13,7 +13,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "test": "tsc && nyc --reporter=text-summary ava dist/**/**/*.test.js",
+    "test": "nyc --reporter=text-summary ava",
     "test:watch": "npm run dev",
     "dev": "ava --watch",
     "build": "tsc",
@@ -38,9 +38,13 @@
     ]
   },
   "nyc": {
-    "exclude": [
-      "**/*.test.js",
-      "**/*.test.ts"
+    "extension": [
+      ".ts",
+      ".js"
+    ],
+    "include": [
+      "**/!(*.test).js",
+      "**/!(*.test|*.d).ts"
     ]
   },
   "engines": {
@@ -61,15 +65,15 @@
   },
   "devDependencies": {
     "@babel/core": "^7.3.4",
-    "@types/sinon": "^7.0.8",
-    "ava": "1.2.1",
+    "@types/sinon": "^7.0.12",
+    "ava": "2.0.0",
     "babel-preset-env": "^1.7.0",
     "coveralls": "^3.0.3",
-    "nyc": "^13.3.0",
-    "sinon": "^7.2.5",
-    "ts-node": "^8.0.2",
-    "tslint": "^5.13.0",
+    "nyc": "^14.1.1",
+    "sinon": "^7.3.2",
+    "ts-node": "^8.2.0",
+    "tslint": "^5.17.0",
     "tslint-config-standard": "^8.0.1",
-    "typescript": "^3.3.3"
+    "typescript": "^3.5.1"
   }
 }

@@ -31,5 +31,5 @@ test.cb('should subscribe and push', (t) => {
   }
 
   q.subscribe(handler)
-  q.push(job)
+  q.push(job).then(() => {}, () => {}) // To satisfy linter
 })

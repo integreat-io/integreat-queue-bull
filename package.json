@@ -13,7 +13,9 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "test": "npm run lint && tsc && nyc --reporter=text-summary ava ./dist/**/*.test.js",
+    "pretest": "npm run lint && npm run build",
+    "test": "nyc --reporter=text-summary ava --config ./ava-dist.config.js",
+    "test:inspect": "node --inspect node_modules/ava/profile.js",
     "test:watch": "npm run dev",
     "dev": "ava --watch",
     "build": "tsc",
@@ -22,33 +24,8 @@
     "nyc:report": "nyc report",
     "lint": "tslint --project tsconfig.json --config tslint.json"
   },
-  "ava": {
-    "compileEnhancements": false,
-    "extensions": [
-      "ts"
-    ],
-    "require": [
-      "ts-node/register/transpile-only"
-    ],
-    "files": [
-      "src/**/*.test.ts"
-    ],
-    "sources": [
-      "src/**/!(*.test).ts"
-    ]
-  },
-  "nyc": {
-    "extension": [
-      ".ts",
-      ".js"
-    ],
-    "include": [
-      "**/!(*.test).js",
-      "**/!(*.test|*.d).ts"
-    ]
-  },
   "engines": {
-    "node": ">= 8.6",
+    "node": ">= 10.0",
     "npm": ">= 5.4"
   },
   "repository": {
@@ -60,20 +37,23 @@
   },
   "homepage": "https://github.com/integreat-io/integreat-queue-bull#readme",
   "dependencies": {
-    "@types/bull": "^3.10.0",
-    "bull": "^3.7.0"
+    "@types/bull": "^3.10.6",
+    "bull": "^3.12.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.5.4",
-    "@types/sinon": "^7.0.13",
-    "ava": "2.2.0",
-    "babel-preset-env": "^1.7.0",
-    "coveralls": "^3.0.5",
+    "@types/sinon": "^7.5.0",
+    "ava": "^2.4.0",
+    "bull": "^3.12.0",
+    "coveralls": "^3.0.7",
+    "nock": "^11.7.0",
     "nyc": "^14.1.1",
-    "sinon": "^7.3.2",
-    "ts-node": "^8.3.0",
-    "tslint": "^5.18.0",
-    "tslint-config-standard": "^8.0.1",
-    "typescript": "^3.5.3"
+    "prettier": "^1.18.2",
+    "sinon": "^7.5.0",
+    "ts-node": "^8.4.1",
+    "tslint": "^5.20.1",
+    "tslint-config-prettier": "^1.18.0",
+    "tslint-config-security": "^1.16.0",
+    "tslint-config-standard": "^9.0.0",
+    "typescript": "^3.7.2"
   }
 }

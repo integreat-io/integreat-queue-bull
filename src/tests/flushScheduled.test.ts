@@ -1,10 +1,10 @@
 import test from 'ava'
 
-import queue = require('..')
+import queue from '..'
 
 // Setup
 
-test.afterEach.always(async (t) => {
+test.afterEach.always(async t => {
   const q = (t.context as any).q
   if (q) {
     return q.queue.empty()
@@ -13,9 +13,9 @@ test.afterEach.always(async (t) => {
 
 // Tests
 
-test('should flush scheduled', async (t) => {
+test('should flush scheduled', async t => {
   const job = {}
-  const q = (t.context as any).q = queue({ namespace: 'flushScheduled1' })
+  const q = ((t.context as any).q = queue({ namespace: 'flushScheduled1' }))
   await q.push(job, Date.now() + 60000)
 
   await q.flushScheduled()
@@ -24,9 +24,9 @@ test('should flush scheduled', async (t) => {
   t.is(jobs.length, 0)
 })
 
-test('should not flush waiting', async (t) => {
+test('should not flush waiting', async t => {
   const job = {}
-  const q = (t.context as any).q = queue({ namespace: 'flushScheduled2' })
+  const q = ((t.context as any).q = queue({ namespace: 'flushScheduled2' }))
   await q.push(job)
 
   await q.flushScheduled()

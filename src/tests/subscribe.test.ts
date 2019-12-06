@@ -1,9 +1,9 @@
 import test from 'ava'
 import sinon = require('sinon')
 
-import queue = require('..')
+import queue from '..'
 
-test('should call subscribed handler', async (t) => {
+test('should call subscribed handler', async t => {
   const bull = { process: sinon.spy() }
   const handler = sinon.stub().resolves()
   const job = { id: 'job1' }
@@ -19,7 +19,7 @@ test('should call subscribed handler', async (t) => {
   t.deepEqual(handler.args[0][0], job)
 })
 
-test('should set id on data', async (t) => {
+test('should set id on data', async t => {
   const bull = { process: sinon.spy() }
   const handler = sinon.stub().resolves()
   const job = {}
@@ -33,9 +33,9 @@ test('should set id on data', async (t) => {
   t.is(calledData.id, 'job2')
 })
 
-test('should call subscribed with maxConcurrency', (t) => {
+test('should call subscribed with maxConcurrency', t => {
   const bull = { process: sinon.spy() }
-  const handler = async () => {}
+  const handler = async () => undefined
   const q = queue({ queue: bull as any, maxConcurrency: 5 })
 
   q.subscribe(handler)
@@ -43,7 +43,7 @@ test('should call subscribed with maxConcurrency', (t) => {
   t.is(bull.process.args[0][0], 5)
 })
 
-test('should unsubscribe', async (t) => {
+test('should unsubscribe', async t => {
   const bull = { process: sinon.spy() }
   const handler = sinon.stub().resolves()
   const job = { id: 'job1' }

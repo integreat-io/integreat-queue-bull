@@ -1,14 +1,14 @@
 import test from 'ava'
-import * as sinon from 'sinon'
+import sinon = require('sinon')
 
-import queue = require('..')
+import queue from '..'
 
 // Helpers
 
 let namescapeCount = 1
 const nextNamespace = () => 'push' + namescapeCount++
 
-test.afterEach.always(async (t) => {
+test.afterEach.always(async t => {
   const q = (t.context as any).q
   if (q) {
     return q.queue.empty()
@@ -17,9 +17,9 @@ test.afterEach.always(async (t) => {
 
 // Tests
 
-test('should push job to queue', async (t) => {
+test('should push job to queue', async t => {
   const job = {}
-  const q = (t.context as any).q = queue({ namespace: nextNamespace() })
+  const q = ((t.context as any).q = queue({ namespace: nextNamespace() }))
 
   await q.push(job)
 
@@ -28,9 +28,9 @@ test('should push job to queue', async (t) => {
   t.deepEqual(jobs[0].data, job)
 })
 
-test('should return job id', async (t) => {
+test('should return job id', async t => {
   const job = {}
-  const q = (t.context as any).q = queue({ namespace: nextNamespace() })
+  const q = ((t.context as any).q = queue({ namespace: nextNamespace() }))
 
   const ret = await q.push(job)
 
@@ -39,9 +39,9 @@ test('should return job id', async (t) => {
   t.is(ret, id)
 })
 
-test('should use provided job id', async (t) => {
+test('should use provided job id', async t => {
   const job = {}
-  const q = (t.context as any).q = queue({ namespace: nextNamespace() })
+  const q = ((t.context as any).q = queue({ namespace: nextNamespace() }))
   const id = 'theid'
 
   const ret = await q.push(job, undefined, id)
@@ -51,9 +51,9 @@ test('should use provided job id', async (t) => {
   t.is(ret, id)
 })
 
-test('should not push null to queue', async (t) => {
+test('should not push null to queue', async t => {
   const job = null
-  const q = (t.context as any).q = queue({ namespace: nextNamespace() })
+  const q = ((t.context as any).q = queue({ namespace: nextNamespace() }))
 
   const ret = await q.push(job as any)
 
@@ -62,9 +62,9 @@ test('should not push null to queue', async (t) => {
   t.is(ret, null)
 })
 
-test('should schedule job', async (t) => {
+test('should schedule job', async t => {
   const job = {}
-  const q = (t.context as any).q = queue({ namespace: nextNamespace() })
+  const q = ((t.context as any).q = queue({ namespace: nextNamespace() }))
   const timestamp = Date.now() + 60000
 
   const ret = await q.push(job, timestamp)
@@ -74,7 +74,7 @@ test('should schedule job', async (t) => {
   t.is(ret, jobs[0].id)
 })
 
-test('should schedule job with the right number of microseconds', async (t) => {
+test('should schedule job with the right number of microseconds', async t => {
   const job = {}
   const stubQ = { add: sinon.stub().resolves({ id: 'stubbed1' }) }
   const q = queue({ namespace: nextNamespace(), queue: stubQ as any })
@@ -88,9 +88,9 @@ test('should schedule job with the right number of microseconds', async (t) => {
   t.is(opts.delay, 60000) // Will fail if test takes longer than 1 ms
 })
 
-test('should push without schedule on invalid timestamp', async (t) => {
+test('should push without schedule on invalid timestamp', async t => {
   const job = {}
-  const q = (t.context as any).q = queue({ namespace: nextNamespace() })
+  const q = ((t.context as any).q = queue({ namespace: nextNamespace() }))
   const timestamp = 'invalid'
 
   await q.push(job, timestamp as any)
@@ -101,7 +101,7 @@ test('should push without schedule on invalid timestamp', async (t) => {
   t.is(waitingCount, 1)
 })
 
-test('should not push when queue is closed', async (t) => {
+test('should not push when queue is closed', async t => {
   const job = {}
   const q = queue({ namespace: nextNamespace() })
   await q.queue.close()

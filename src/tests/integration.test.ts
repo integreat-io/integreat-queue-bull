@@ -1,6 +1,6 @@
 import test from 'ava'
 
-import queue = require('..')
+import queue from '..'
 
 // Helpers
 
@@ -11,7 +11,7 @@ interface Action {
 let namescapeCount = 1
 const nextNamespace = () => 'integration' + namescapeCount++
 
-test.afterEach.always(async (t) => {
+test.afterEach.always(async t => {
   const q = (t.context as any).q
   if (q) {
     return q.queue.empty()
@@ -20,9 +20,9 @@ test.afterEach.always(async (t) => {
 
 // Tests
 
-test.cb('should subscribe and push', (t) => {
+test.cb('should subscribe and push', t => {
   const job: Action = { payload: { type: 'entry' } }
-  const q = (t.context as any).q = queue({ namespace: nextNamespace() })
+  const q = ((t.context as any).q = queue({ namespace: nextNamespace() }))
 
   const handler = async (job1: Action) => {
     t.truthy(job1)
@@ -31,5 +31,8 @@ test.cb('should subscribe and push', (t) => {
   }
 
   q.subscribe(handler)
-  q.push(job).then(() => {}, () => {}) // To satisfy linter
+  q.push(job).then(
+    () => undefined,
+    () => undefined
+  ) // To satisfy linter
 })

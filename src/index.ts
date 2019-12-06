@@ -1,36 +1,36 @@
 import Queue = require('bull')
 
 interface RedisOptions {
-  port?: number,
-  host?: string,
-  family?: number,
-  path?: string,
-  keepAlive?: number,
-  connectionName?: string,
-  password?: string,
-  db?: number,
-  enableReadyCheck?: boolean,
-  keyPrefix?: string,
-  retryStrategy? (times: number): number | false,
-  maxRetriesPerRequest?: number | null,
-  reconnectOnError? (error: Error): boolean | 1 | 2,
-  enableOfflineQueue?: boolean,
-  connectTimeout?: number,
-  autoResubscribe?: boolean,
-  autoResendUnfulfilledCommands?: boolean,
-  lazyConnect?: boolean,
-  tls?: object,
-  sentinels?: Array<{ host: string; port: number; }>,
-  name?: string,
-  readOnly?: boolean,
-  dropBufferSupport?: boolean,
+  port?: number
+  host?: string
+  family?: number
+  path?: string
+  keepAlive?: number
+  connectionName?: string
+  password?: string
+  db?: number
+  enableReadyCheck?: boolean
+  keyPrefix?: string
+  retryStrategy?(times: number): number | false
+  maxRetriesPerRequest?: number | null
+  reconnectOnError?(error: Error): boolean | 1 | 2
+  enableOfflineQueue?: boolean
+  connectTimeout?: number
+  autoResubscribe?: boolean
+  autoResendUnfulfilledCommands?: boolean
+  lazyConnect?: boolean
+  tls?: object
+  sentinels?: Array<{ host: string; port: number }>
+  name?: string
+  readOnly?: boolean
+  dropBufferSupport?: boolean
   showFriendlyErrorStack?: boolean
 }
 
 interface Options {
-  queue?: Queue.Queue,
-  namespace?: string,
-  maxConcurrency?: number,
+  queue?: Queue.Queue
+  namespace?: string
+  maxConcurrency?: number
   redis?: string | RedisOptions
 }
 
@@ -38,14 +38,16 @@ interface Handler {
   (data: any): Promise<void>
 }
 
-const createQueue = (namespace: string, redis?: string | RedisOptions) =>
-  (typeof redis === 'string') ? new Queue(namespace, redis)
-  : (typeof redis === 'object' && redis) ? new Queue(namespace, { redis })
-  : new Queue(namespace)
+const createQueue = (namespace: string, redis?: string | RedisOptions | null) =>
+  typeof redis === 'string'
+    ? new Queue(namespace, redis)
+    : typeof redis === 'object' && redis !== null
+    ? new Queue(namespace, { redis } as Queue.QueueOptions)
+    : new Queue(namespace)
 
-function queue (options: Options) {
+function queue(options: Options) {
   const { namespace = 'great', maxConcurrency = 1, redis } = options
-  const queue = (options.queue) ? options.queue : createQueue(namespace, redis)
+  const queue = options.queue ? options.queue : createQueue(namespace, redis)
   let subscribed = false
 
   return {
@@ -56,7 +58,7 @@ function queue (options: Options) {
      * Push a job to the queue. If a timestamp is included, the job is
      * scheduled for that time. If not, the action is «scheduled» for right now.
      */
-    async push (payload: object, timestamp?: number, id?: string) {
+    async push(payload: object, timestamp?: number, id?: string) {
       if (!payload) {
         return null
       }
@@ -82,13 +84,12 @@ function queue (options: Options) {
      * subscribed handlers are called with the respective action.
      * Return a subscription handle, used for unsubscribing.
      */
-    subscribe (handler: Handler) {
+    subscribe(handler: Handler) {
       subscribed = true
 
-      queue.process(maxConcurrency,
-        async (job: Queue.Job) => (subscribed)
-          ? handler({ id: job.id, ...job.data })
-          : null)
+      queue.process(maxConcurrency, async (job: Queue.Job) =>
+        subscribed ? handler({ id: job.id, ...job.data }) : null
+      )
 
       return null
     },
@@ -97,7 +98,7 @@ function queue (options: Options) {
      * Unsubscribe from scheduler queue. Subscription is identified with the
      * handler from the `subscribe` method.
      */
-    unsubscribe (_handle: any) {
+    unsubscribe(_handle: any) {
       subscribed = false
     },
 
@@ -105,20 +106,17 @@ function queue (options: Options) {
      * Flush all queued jobs, i.e. waiting and scheduled.
      * Active jobs are not flushed.
      */
-    async flush () {
-      return Promise.all([
-        queue.clean(0, 'wait'),
-        queue.clean(0, 'delayed')
-      ])
+    async flush() {
+      return Promise.all([queue.clean(0, 'wait'), queue.clean(0, 'delayed')])
     },
 
     /**
      * Flush all scheduled jobs.
      */
-    async flushScheduled () {
+    async flushScheduled() {
       return queue.clean(0, 'delayed')
     }
   }
 }
 
-export = queue
+export default queue

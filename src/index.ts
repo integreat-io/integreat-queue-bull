@@ -84,10 +84,10 @@ function queue(options: Options) {
      * subscribed handlers are called with the respective action.
      * Return a subscription handle, used for unsubscribing.
      */
-    subscribe(handler: Handler) {
+    async subscribe(handler: Handler) {
       subscribed = true
 
-      queue.process(maxConcurrency, async (job: Queue.Job) =>
+      await queue.process(maxConcurrency, async (job: Queue.Job) =>
         subscribed ? handler({ id: job.id, ...job.data }) : null
       )
 
@@ -98,7 +98,7 @@ function queue(options: Options) {
      * Unsubscribe from scheduler queue. Subscription is identified with the
      * handler from the `subscribe` method.
      */
-    unsubscribe(_handle: any) {
+    async unsubscribe(_handle: any) {
       subscribed = false
     },
 

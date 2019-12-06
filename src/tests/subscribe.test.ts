@@ -4,12 +4,12 @@ import sinon = require('sinon')
 import queue from '..'
 
 test('should call subscribed handler', async t => {
-  const bull = { process: sinon.spy() }
+  const bull = { process: sinon.stub().resolves({}) }
   const handler = sinon.stub().resolves()
   const job = { id: 'job1' }
   const q = queue({ queue: bull as any })
 
-  q.subscribe(handler)
+  await q.subscribe(handler)
   const processFn = bull.process.args[0][1]
   await processFn({ data: job }) // Call handler to make sure it calls our handler
 
@@ -20,12 +20,12 @@ test('should call subscribed handler', async t => {
 })
 
 test('should set id on data', async t => {
-  const bull = { process: sinon.spy() }
+  const bull = { process: sinon.stub().resolves({}) }
   const handler = sinon.stub().resolves()
   const job = {}
   const q = queue({ queue: bull as any })
 
-  q.subscribe(handler)
+  await q.subscribe(handler)
   const processFn = bull.process.args[0][1]
   await processFn({ data: job, id: 'job2' }) // Call handler to make sure it calls our handler
 
@@ -33,26 +33,34 @@ test('should set id on data', async t => {
   t.is(calledData.id, 'job2')
 })
 
-test('should call subscribed with maxConcurrency', t => {
-  const bull = { process: sinon.spy() }
+test('should call subscribed with maxConcurrency', async t => {
+  const bull = { process: sinon.stub().resolves({}) }
   const handler = async () => undefined
   const q = queue({ queue: bull as any, maxConcurrency: 5 })
 
-  q.subscribe(handler)
+  await q.subscribe(handler)
 
   t.is(bull.process.args[0][0], 5)
 })
 
 test('should unsubscribe', async t => {
-  const bull = { process: sinon.spy() }
+  const bull = { process: sinon.stub().resolves({}) }
   const handler = sinon.stub().resolves()
   const job = { id: 'job1' }
   const q = queue({ queue: bull as any })
 
   const handle = q.subscribe(handler)
-  q.unsubscribe(handle)
+  await q.unsubscribe(handle)
   const processFn = bull.process.args[0][1]
   await processFn(job) // Call handler to make sure it calls our handler
 
   t.is(handler.callCount, 0)
+})
+
+test('should reject when process promise rejects', async t => {
+  const bull = { process: sinon.stub().rejects('Wrongdoing') }
+  const handler = sinon.stub().resolves()
+  const q = queue({ queue: bull as any })
+
+  await t.throwsAsync(q.subscribe(handler))
 })

@@ -18,6 +18,8 @@ test.afterEach.always(async t => {
   }
 })
 
+const ph = () => undefined
+
 // Tests
 
 test.cb('should subscribe and push', t => {
@@ -30,9 +32,6 @@ test.cb('should subscribe and push', t => {
     t.end()
   }
 
-  q.subscribe(handler)
-  q.push(job).then(
-    () => undefined,
-    () => undefined
-  ) // To satisfy linter
+  q.subscribe(handler).then(ph, ph) // To satisfy linter
+  q.push(job).then(ph, ph) // To satisfy linter
 })

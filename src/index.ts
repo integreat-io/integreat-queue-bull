@@ -47,7 +47,7 @@ export interface Handler {
 const isResponse = (response: unknown): response is Response =>
   typeof response === 'object' &&
   response !== null &&
-  typeof (response as Response).status === 'string'
+  typeof (response as any).status === 'string'
 
 const createQueue = (namespace: string, redis?: string | RedisOptions | null) =>
   typeof redis === 'string'

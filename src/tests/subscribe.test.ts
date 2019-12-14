@@ -5,7 +5,7 @@ import queue from '..'
 
 test('should call subscribed handler', async t => {
   const bull = { process: sinon.stub().resolves({}) }
-  const handler = sinon.stub().resolves()
+  const handler = sinon.stub().resolves({ status: 'ok', data: [] })
   const job = { id: 'job1' }
   const q = queue({ queue: bull as any })
 
@@ -21,7 +21,7 @@ test('should call subscribed handler', async t => {
 
 test('should set id on data', async t => {
   const bull = { process: sinon.stub().resolves({}) }
-  const handler = sinon.stub().resolves()
+  const handler = sinon.stub().resolves({ status: 'ok', data: [] })
   const job = {}
   const q = queue({ queue: bull as any })
 
@@ -35,12 +35,25 @@ test('should set id on data', async t => {
 
 test('should call subscribed with maxConcurrency', async t => {
   const bull = { process: sinon.stub().resolves({}) }
-  const handler = async () => undefined
+  const handler = async () => ({ status: 'ok', data: [] })
   const q = queue({ queue: bull as any, maxConcurrency: 5 })
 
   await q.subscribe(handler)
 
   t.is(bull.process.args[0][0], 5)
+})
+
+test('should reject when handler returns an error response', async t => {
+  const bull = { process: sinon.stub().resolves({}) }
+  const handler = sinon.stub().resolves({ status: 'error', error: 'Ohno' })
+  const job = { id: 'job1' }
+  const q = queue({ queue: bull as any })
+
+  await q.subscribe(handler)
+  const processFn = bull.process.args[0][1]
+
+  const err = await t.throwsAsync(processFn({ data: job }))
+  t.is(err.message, 'Ohno [error]')
 })
 
 test('should unsubscribe', async t => {

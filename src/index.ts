@@ -34,9 +34,20 @@ export interface Options {
   redis?: string | RedisOptions
 }
 
-export interface Handler {
-  (data: any): Promise<void>
+export interface Response {
+  status: string
+  error?: string
+  data?: unknown
 }
+
+export interface Handler {
+  (data: any): Promise<Response | unknown>
+}
+
+const isResponse = (response: unknown): response is Response =>
+  typeof response === 'object' &&
+  response !== null &&
+  typeof (response as Response).status === 'string'
 
 const createQueue = (namespace: string, redis?: string | RedisOptions | null) =>
   typeof redis === 'string'
@@ -87,9 +98,18 @@ function queue(options: Options) {
     async subscribe(handler: Handler) {
       subscribed = true
 
-      await queue.process(maxConcurrency, async (job: Queue.Job) =>
-        subscribed ? handler({ id: job.id, ...job.data }) : null
-      )
+      await queue.process(maxConcurrency, async (job: Queue.Job) => {
+        if (subscribed) {
+          const ret = await handler({ id: job.id, ...job.data })
+          if (!isResponse(ret) || ret.status === 'ok') {
+            return ret
+          } else {
+            throw new Error(`${ret.error} [${ret.status}]`)
+          }
+        }
+
+        return null
+      })
 
       return null
     },

@@ -1,6 +1,6 @@
 import Queue = require('bull')
 
-interface RedisOptions {
+export interface RedisOptions {
   port?: number
   host?: string
   family?: number
@@ -27,14 +27,14 @@ interface RedisOptions {
   showFriendlyErrorStack?: boolean
 }
 
-interface Options {
+export interface Options {
   queue?: Queue.Queue
   namespace?: string
   maxConcurrency?: number
   redis?: string | RedisOptions
 }
 
-interface Handler {
+export interface Handler {
   (data: any): Promise<void>
 }
 

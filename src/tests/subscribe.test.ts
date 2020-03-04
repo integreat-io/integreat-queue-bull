@@ -56,6 +56,21 @@ test('should reject when handler returns an error response', async t => {
   t.is(err.message, 'Ohno [error]')
 })
 
+test('should not reject on noaction', async t => {
+  const bull = { process: sinon.stub().resolves({}) }
+  const handler = sinon.stub().resolves({
+    status: 'noaction',
+    error: 'Nothing to do'
+  })
+  const job = { id: 'job1' }
+  const q = queue({ queue: bull as any })
+
+  await q.subscribe(handler)
+  const processFn = bull.process.args[0][1]
+
+  await t.notThrowsAsync(processFn({ data: job }))
+})
+
 test('should unsubscribe', async t => {
   const bull = { process: sinon.stub().resolves({}) }
   const handler = sinon.stub().resolves()

@@ -123,6 +123,13 @@ function queue(options: Options) {
     },
 
     /**
+     * Clean completed jobs.
+     */
+    async clean(ms = 0) {
+      return queue.clean(ms, 'completed')
+    },
+
+    /**
      * Flush all queued jobs, i.e. waiting and scheduled.
      * Active jobs are not flushed.
      */

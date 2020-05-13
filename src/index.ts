@@ -32,6 +32,7 @@ export interface Options {
   namespace?: string
   maxConcurrency?: number
   redis?: string | RedisOptions
+  keyPrefix?: string
 }
 
 export interface Response {
@@ -49,16 +50,27 @@ const isResponse = (response: unknown): response is Response =>
   response !== null &&
   typeof (response as any).status === 'string'
 
-const createQueue = (namespace: string, redis?: string | RedisOptions | null) =>
+const createQueue = (
+  namespace: string,
+  prefix: string,
+  redis?: string | RedisOptions | null
+) =>
   typeof redis === 'string'
-    ? new Queue(namespace, redis)
+    ? new Queue(namespace, redis, { prefix })
     : typeof redis === 'object' && redis !== null
-    ? new Queue(namespace, { redis } as Queue.QueueOptions)
-    : new Queue(namespace)
+    ? new Queue(namespace, { redis, prefix } as Queue.QueueOptions)
+    : new Queue(namespace, { prefix })
 
 function queue(options: Options) {
-  const { namespace = 'great', maxConcurrency = 1, redis } = options
-  const queue = options.queue ? options.queue : createQueue(namespace, redis)
+  const {
+    namespace = 'great',
+    maxConcurrency = 1,
+    redis,
+    keyPrefix = 'bull'
+  } = options
+  const queue = options.queue
+    ? options.queue
+    : createQueue(namespace, keyPrefix, redis)
   let subscribed = false
 
   return {

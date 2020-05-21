@@ -37,8 +37,8 @@
   },
   "homepage": "https://github.com/integreat-io/integreat-queue-bull#readme",
   "dependencies": {
-    "@types/bull": "^3.12.1",
-    "bull": "^3.13.0"
+    "@types/bull": "^3.13.0",
+    "bull": "^3.14.0"
   },
   "devDependencies": {
     "@types/sinon": "^9.0.3",

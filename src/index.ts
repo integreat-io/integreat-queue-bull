@@ -113,7 +113,10 @@ function queue(options: Options) {
       await queue.process(maxConcurrency, async (job: Queue.Job) => {
         if (subscribed) {
           const ret = await handler({ id: job.id, ...job.data })
-          if (!isResponse(ret) || ['ok', 'noaction'].includes(ret.status)) {
+          if (
+            !isResponse(ret) ||
+            ['ok', 'noaction', 'queued'].includes(ret.status)
+          ) {
             return ret
           } else {
             throw new Error(`${ret.error} [${ret.status}]`)

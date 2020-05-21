@@ -71,6 +71,21 @@ test('should not reject on noaction', async t => {
   await t.notThrowsAsync(processFn({ data: job }))
 })
 
+test('should not reject on queued', async t => {
+  const bull = { process: sinon.stub().resolves({}) }
+  const handler = sinon.stub().resolves({
+    status: 'queued',
+    data: []
+  })
+  const job = { id: 'job1' }
+  const q = queue({ queue: bull as any })
+
+  await q.subscribe(handler)
+  const processFn = bull.process.args[0][1]
+
+  await t.notThrowsAsync(processFn({ data: job }))
+})
+
 test('should unsubscribe', async t => {
   const bull = { process: sinon.stub().resolves({}) }
   const handler = sinon.stub().resolves()

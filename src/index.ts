@@ -1,4 +1,5 @@
 import Queue = require('bull')
+import Bull = require('bull')
 
 export interface RedisOptions {
   port?: number
@@ -33,6 +34,7 @@ export interface Options {
   maxConcurrency?: number
   redis?: string | RedisOptions
   keyPrefix?: string
+  bullSettings?: Bull.AdvancedSettings
 }
 
 export interface Response {
@@ -53,24 +55,26 @@ const isResponse = (response: unknown): response is Response =>
 const createQueue = (
   namespace: string,
   prefix: string,
-  redis?: string | RedisOptions | null
+  redis?: string | RedisOptions | null,
+  settings = {}
 ) =>
   typeof redis === 'string'
-    ? new Queue(namespace, redis, { prefix })
+    ? new Queue(namespace, redis, { prefix, settings })
     : typeof redis === 'object' && redis !== null
-    ? new Queue(namespace, { redis, prefix } as Queue.QueueOptions)
-    : new Queue(namespace, { prefix })
+    ? new Queue(namespace, { redis, prefix, settings } as Queue.QueueOptions)
+    : new Queue(namespace, { prefix, settings })
 
 function queue(options: Options) {
   const {
     namespace = 'great',
     maxConcurrency = 1,
     redis,
-    keyPrefix = 'bull'
+    bullSettings,
+    keyPrefix = 'bull',
   } = options
   const queue = options.queue
     ? options.queue
-    : createQueue(namespace, keyPrefix, redis)
+    : createQueue(namespace, keyPrefix, redis, bullSettings)
   let subscribed = false
 
   return {
@@ -157,7 +161,7 @@ function queue(options: Options) {
      */
     async flushScheduled() {
       return queue.clean(0, 'delayed')
-    }
+    },
   }
 }
 

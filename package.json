@@ -41,18 +41,18 @@
     "bull": "^3.13.0"
   },
   "devDependencies": {
-    "@types/sinon": "^7.5.2",
-    "ava": "^3.5.0",
-    "coveralls": "^3.0.7",
+    "@types/sinon": "^9.0.3",
+    "ava": "^3.8.2",
+    "coveralls": "^3.1.0",
     "nock": "^12.0.3",
-    "nyc": "^15.0.0",
-    "prettier": "^1.18.2",
-    "sinon": "^9.0.1",
-    "ts-node": "^8.7.0",
-    "tslint": "^6.1.0",
+    "nyc": "^15.0.1",
+    "prettier": "^2.0.5",
+    "sinon": "^9.0.2",
+    "ts-node": "^8.10.1",
+    "tslint": "^6.1.2",
     "tslint-config-prettier": "^1.18.0",
     "tslint-config-security": "^1.16.0",
     "tslint-config-standard": "^9.0.0",
-    "typescript": "^3.8.3"
+    "typescript": "^3.9.3"
   }
 }

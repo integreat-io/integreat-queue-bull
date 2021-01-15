@@ -7,10 +7,10 @@ import queue from '..'
 
 test('should clean completed', async t => {
   const stubQueue = { clean: sinon.stub().resolves([1, 2]) }
-  const q = ((t.context as any).q = queue({
+  const q = queue({
     namespace: 'clean1',
     queue: stubQueue as any
-  }))
+  })
 
   await q.clean()
 
@@ -21,10 +21,10 @@ test('should clean completed', async t => {
 
 test('should clean completed older than one hour', async t => {
   const stubQueue = { clean: sinon.stub().resolves([1, 2]) }
-  const q = ((t.context as any).q = queue({
+  const q = queue({
     namespace: 'clean1',
     queue: stubQueue as any
-  }))
+  })
 
   await q.clean(3600000)
 

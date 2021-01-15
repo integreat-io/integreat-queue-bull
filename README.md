@@ -13,7 +13,7 @@ For a Bee-Queue imlementation, see [integreat-queue-redis](https://github.com/in
 
 ### Prerequisits
 
-Requires node v8.6.
+Requires node v10 and Integreat v0.7.
 
 ### Installing
 

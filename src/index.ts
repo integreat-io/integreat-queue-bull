@@ -1,5 +1,4 @@
 import Queue = require('bull')
-import Bull = require('bull')
 
 export interface RedisOptions {
   port?: number
@@ -34,7 +33,7 @@ export interface Options {
   maxConcurrency?: number
   redis?: string | RedisOptions
   keyPrefix?: string
-  bullSettings?: Bull.AdvancedSettings
+  bullSettings?: Queue.AdvancedSettings
 }
 
 export interface Response {
@@ -64,7 +63,7 @@ const createQueue = (
     ? new Queue(namespace, { redis, prefix, settings } as Queue.QueueOptions)
     : new Queue(namespace, { prefix, settings })
 
-function queue(options: Options) {
+export default function queue(options: Options) {
   const {
     namespace = 'great',
     maxConcurrency = 1,
@@ -75,7 +74,8 @@ function queue(options: Options) {
   const queue = options.queue
     ? options.queue
     : createQueue(namespace, keyPrefix, redis, bullSettings)
-  let subscribed = false
+  let subscribedHandler: Handler | null = null
+  let firstSubscription = true
 
   return {
     queue,
@@ -112,23 +112,31 @@ function queue(options: Options) {
      * Return a subscription handle, used for unsubscribing.
      */
     async subscribe(handler: Handler) {
-      subscribed = true
-
-      await queue.process(maxConcurrency, async (job: Queue.Job) => {
-        if (subscribed) {
-          const ret = await handler({ id: job.id, ...job.data })
-          if (
-            !isResponse(ret) ||
-            ['ok', 'noaction', 'queued'].includes(ret.status)
-          ) {
-            return ret
-          } else {
-            throw new Error(`${ret.error} [${ret.status}]`)
-          }
-        }
-
+      // tslint:disable-next-line:strict-type-predicates
+      if (typeof handler !== 'function') {
         return null
-      })
+      }
+      subscribedHandler = handler
+
+      if (firstSubscription) {
+        firstSubscription = false
+        await queue.process(maxConcurrency, async (job: Queue.Job) => {
+          if (subscribedHandler) {
+            const ret = await subscribedHandler({ id: job.id, ...job.data })
+            if (
+              !isResponse(ret) ||
+              ['ok', 'noaction', 'queued'].includes(ret.status)
+            ) {
+              return ret
+            } else {
+              throw new Error(`${ret.error} [${ret.status}]`)
+            }
+          }
+
+          return null
+        })
+      }
+      await queue.resume(true) // Resume local queue in case it has been paused
 
       return null
     },
@@ -138,7 +146,8 @@ function queue(options: Options) {
      * handler from the `subscribe` method.
      */
     async unsubscribe(_handle: any) {
-      subscribed = false
+      await queue.pause(true) // Pause local queue
+      subscribedHandler = null
     },
 
     /**
@@ -164,5 +173,3 @@ function queue(options: Options) {
     },
   }
 }
-
-export default queue

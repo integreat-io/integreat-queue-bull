@@ -171,5 +171,12 @@ export default function queue(options: Options) {
     async flushScheduled() {
       return queue.clean(0, 'delayed')
     },
+
+    /**
+     * Close queue.
+     */
+    async close() {
+      return queue.close()
+    },
   }
 }

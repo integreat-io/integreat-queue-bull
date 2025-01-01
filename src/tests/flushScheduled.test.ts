@@ -1,36 +1,31 @@
-import test from 'ava'
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import closeQueue from './helpers/closeQueue.js'
 
-import queue from '..'
-
-// Setup
-
-test.afterEach.always(async t => {
-  const q = (t.context as any).q
-  if (q) {
-    return q.queue.empty()
-  }
-})
+import queue from '../index.js'
 
 // Tests
 
-test('should flush scheduled', async t => {
+test('should flush scheduled', async (t) => {
   const job = {}
-  const q = ((t.context as any).q = queue({ namespace: 'flushScheduled1' }))
+  const q = queue({ namespace: 'flushScheduled1' })
+  t.after(closeQueue(q))
   await q.push(job, Date.now() + 60000)
 
   await q.flushScheduled()
 
   const jobs = await q.queue.getDelayed()
-  t.is(jobs.length, 0)
+  assert.equal(jobs.length, 0)
 })
 
-test('should not flush waiting', async t => {
+test('should not flush waiting', async (t) => {
   const job = {}
-  const q = ((t.context as any).q = queue({ namespace: 'flushScheduled2' }))
+  const q = queue({ namespace: 'flushScheduled2' })
+  t.after(closeQueue(q))
   await q.push(job)
 
   await q.flushScheduled()
 
   const jobs = await q.queue.getWaiting()
-  t.is(jobs.length, 1)
+  assert.equal(jobs.length, 1)
 })

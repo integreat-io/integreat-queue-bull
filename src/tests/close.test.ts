@@ -1,18 +1,20 @@
-import test from 'ava'
-import sinon = require('sinon')
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import sinon from 'sinon'
+import type { Queue } from 'bull'
 
-import queue from '..'
+import queue from '../index.js'
 
 // Tests
 
-test('should close connection', async t => {
+test('should close connection', async () => {
   const stubQueue = { close: sinon.stub().resolves(undefined) }
   const q = queue({
     namespace: 'clean1',
-    queue: stubQueue as any
+    queue: stubQueue as unknown as Queue,
   })
 
   await q.close()
 
-  t.is(stubQueue.close.callCount, 1)
+  assert.equal(stubQueue.close.callCount, 1)
 })

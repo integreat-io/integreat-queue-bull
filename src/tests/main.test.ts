@@ -1,49 +1,60 @@
-import test from 'ava'
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import closeQueue from './helpers/closeQueue.js'
+import type { Queue } from 'bull'
 
-import queue from '..'
+import queue from '../index.js'
 
 // Tests
 
-test('should return bull instance with namespace', t => {
-  const bull: any = {}
+test('should return bull instance with namespace', () => {
+  const bull = {} as Queue
 
   const q = queue({ queue: bull })
 
-  t.is(q.queue, bull)
-  t.is(q.namespace, 'great')
+  assert.equal(q.queue, bull)
+  assert.equal(q.namespace, 'great')
 })
 
-test('should get queue namespace from options', t => {
+test('should get queue namespace from options', (t) => {
   const options = { namespace: 'greater' }
 
   const q = queue(options)
+  t.after(closeQueue(q))
 
-  t.is(q.namespace, 'greater')
+  assert.equal(q.namespace, 'greater')
 })
 
-test('should create queue', t => {
+test('should create queue', (t) => {
   const options = { namespace: 'greater' }
 
   const q = queue(options)
+  t.after(closeQueue(q))
 
-  t.truthy(q.queue)
+  assert.equal(!!q.queue, true)
 })
 
-test('should create queue with redis url', t => {
-  const options = { namespace: 'greater', redis: 'redis://localhost:6378' }
+// Not sure this test really addresses what we're testing -- it should probably
+// test with a different redis database
+test('should create queue with redis url', (t) => {
+  const options = { namespace: 'greater', redis: 'redis://localhost:6379' }
 
   const q = queue(options)
+  t.after(closeQueue(q))
 
-  t.truthy(q.queue)
+  assert.equal(!!q.queue, true)
 })
 
-test('should create queue with redis options', t => {
+// Not sure this test really addresses what we're testing -- it should probably
+// test with a different redis database
+test('should create queue with redis options', (t) => {
   const options = {
     namespace: 'greater',
-    redis: { host: 'localhost', port: 6378 }
+    redis: { host: 'localhost', port: 6379 },
   }
 
   const q = queue(options)
+  t.after(closeQueue(q))
 
-  t.truthy(q.queue)
+  assert.equal(!!q.queue, true)
 })

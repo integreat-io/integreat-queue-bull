@@ -1,4 +1,5 @@
-import Queue = require('bull')
+import Queue from 'bull'
+import type { Response } from 'integreat'
 
 export interface RedisOptions {
   port?: number
@@ -20,7 +21,7 @@ export interface RedisOptions {
   autoResendUnfulfilledCommands?: boolean
   lazyConnect?: boolean
   tls?: object
-  sentinels?: Array<{ host: string; port: number }>
+  sentinels?: { host: string; port: number }[]
   name?: string
   readOnly?: boolean
   dropBufferSupport?: boolean
@@ -36,34 +37,26 @@ export interface Options {
   bullSettings?: Queue.AdvancedSettings
 }
 
-export interface Response {
-  status: string
-  error?: string
-  data?: unknown
-}
-
-export interface Handler {
-  (data: any): Promise<Response | unknown>
-}
+export type Handler = (data: unknown) => Promise<Response | unknown>
 
 const isResponse = (response: unknown): response is Response =>
   typeof response === 'object' &&
   response !== null &&
-  typeof (response as any).status === 'string'
+  typeof (response as Response).status === 'string'
 
 const createQueue = (
   namespace: string,
   prefix: string,
   redis?: string | RedisOptions | null,
-  settings = {}
+  settings = {},
 ) =>
   typeof redis === 'string'
     ? new Queue(namespace, redis, { prefix, settings })
     : typeof redis === 'object' && redis !== null
-    ? new Queue(namespace, { redis, prefix, settings } as Queue.QueueOptions)
-    : new Queue(namespace, { prefix, settings })
+      ? new Queue(namespace, { redis, prefix, settings } as Queue.QueueOptions)
+      : new Queue(namespace, { prefix, settings })
 
-export default function queue(options: Options) {
+export default function (options: Options) {
   const {
     namespace = 'great',
     maxConcurrency = 1,
@@ -101,7 +94,7 @@ export default function queue(options: Options) {
       try {
         const job = await queue.add(payload, opts)
         return job.id
-      } catch (error) {
+      } catch {
         return null
       }
     },
@@ -112,7 +105,6 @@ export default function queue(options: Options) {
      * Return a subscription handle, used for unsubscribing.
      */
     async subscribe(handler: Handler) {
-      // tslint:disable-next-line:strict-type-predicates
       if (typeof handler !== 'function') {
         return null
       }
@@ -145,7 +137,7 @@ export default function queue(options: Options) {
      * Unsubscribe from scheduler queue. Subscription is identified with the
      * handler from the `subscribe` method.
      */
-    async unsubscribe(_handle: any) {
+    async unsubscribe(_handle: unknown) {
       await queue.pause(true) // Pause local queue
       subscribedHandler = null
     },

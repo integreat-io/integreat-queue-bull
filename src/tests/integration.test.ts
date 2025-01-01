@@ -1,37 +1,29 @@
-import test from 'ava'
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import type { Action } from 'integreat'
+import closeQueue from './helpers/closeQueue.js'
 
-import queue from '..'
+import queue from '../index.js'
 
 // Helpers
-
-interface Action {
-  payload: object
-}
 
 let namescapeCount = 1
 const nextNamespace = () => 'integration' + namescapeCount++
 
-test.afterEach.always(async t => {
-  const q = (t.context as any).q
-  if (q) {
-    return q.queue.empty()
-  }
-})
-
-const ph = () => undefined
-
 // Tests
 
-test.cb('should subscribe and push', t => {
-  const job: Action = { payload: { type: 'entry' } }
-  const q = ((t.context as any).q = queue({ namespace: nextNamespace() }))
+test('should subscribe and push', (t, done) => {
+  const job = { type: 'GET', payload: { type: 'entry' } }
+  const q = queue({ namespace: nextNamespace() })
+  t.after(closeQueue(q))
 
-  const handler = async (job1: Action) => {
-    t.truthy(job1)
-    t.deepEqual(job1.payload, job.payload)
-    t.end()
+  const handler = async (job1: unknown) => {
+    assert.equal(!!job1, true)
+    assert.deepEqual((job1 as Action).payload, job.payload)
+    done()
+    return { status: 'ok' }
   }
 
-  q.subscribe(handler).then(ph, ph) // To satisfy linter
-  q.push(job).then(ph, ph) // To satisfy linter
+  q.subscribe(handler)
+  q.push(job)
 })

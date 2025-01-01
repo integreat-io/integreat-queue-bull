@@ -1,26 +1,28 @@
 # Redis queue for Integreat - based on Bull
 
+> [!NOTE]
+> This is a legacy implementation for Integreat <=0.7. Use
+> [intgreat-transporter-bull](https://github.com/integreat-io/integreat-transporter-bull)
+> for Integreat >=0.8.
+
 This implementation is based on [Bull](https://github.com/OptimalBits/bull).
 
 For a Bee-Queue imlementation, see [integreat-queue-redis](https://github.com/integreat-io/integreat-queue-redis).
 
 [![npm Version](https://img.shields.io/npm/v/integreat-queue-bull.svg)](https://www.npmjs.com/package/integreat-queue-bull)
-[![Build Status](https://travis-ci.org/integreat-io/integreat-queue-bull.svg?branch=master)](https://travis-ci.org/integreat-io/integreat-queue-bull)
-[![Coverage Status](https://coveralls.io/repos/github/integreat-io/integreat-queue-bull/badge.svg?branch=master)](https://coveralls.io/github/integreat-io/integreat-queue-bull?branch=master)
-[![Dependencies Status](https://tidelift.com/badges/github/integreat-io/integreat-queue-bull?style=flat)](https://tidelift.com/subscriber/github/integreat-io/repositories/integreat-queue-bull)
 
 ## Getting started
 
 ### Prerequisits
 
-Requires node v10 and Integreat v0.7.
+Requires node v18 and Integreat v0.7.
 
 ### Installing
 
 Install from npm:
 
 ```
-npm install integreat-queue-bull --save
+npm i integreat-queue-bull
 ```
 
 ### Running the tests
